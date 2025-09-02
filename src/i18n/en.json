@@ -1,6 +1,6 @@
 {
   "app_title": "Library",
-  "title":"TITLE",
+  "title": "TITLE",
   "language": "Language",
   "email": "Email",
   "password": "Password",
@@ -18,8 +18,11 @@
   "delete": "Delete",
   "close": "Close",
   "profile": "Profile",
-  "note":"note",
-  "back":"back",
+  "note": "Note",
+  "noNote": "No notes available",
+  "back": "Back",
+  "booksByAuthor": "Books by this author",
+  "noBooks": "No books available",
   "nav": {
     "books": "Books",
     "authors": "Authors",
@@ -42,5 +45,8 @@
     "not_authenticated": "You must be logged in to view your profile.",
     "author_not_found": "Author not found.",
     "book_not_found": "Book not found."
+  },
+  "success": {
+    "saved": "Successfully saved"
   }
 }

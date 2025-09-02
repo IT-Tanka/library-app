@@ -1,13 +1,13 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import Home from '@/views/Home.vue';
 import BooksList from '@/views/Books/List.vue';
-import BookDetail from '@/views/Books/Detail.vue'; // Новый импорт
+import BookDetail from '@/views/Books/Detail.vue';
 import AuthorsList from '@/views/Authors/List.vue';
-import AuthorDetail from '@/views/Authors/Detail.vue'; // Новый импорт
+import AuthorDetail from '@/views/Authors/Detail.vue';
 import Profile from '@/views/Profile.vue';
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Home',
@@ -45,7 +45,7 @@ const routes = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/',
+    redirect: '/', 
   },
 ];
 

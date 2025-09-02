@@ -7,7 +7,7 @@
           <v-text-field v-model="book.title" :label="$t('title')"
             :error-messages="v$.title.$errors.map((e: ErrorObject) => String(e.$message))" class="mb-4" />
           <v-select v-model="book.authorId"
-            :items="authorsStore.authors.map((a: { id: number; name: string }) => ({ title: a.name, value: a.id }))"
+            :items="authorsStore.authors.map(a => ({ title: a.name, value: a.id }))"
             :label="$t('author')" :error-messages="v$.authorId.$errors.map((e: ErrorObject) => String(e.$message))"
             class="mb-4" />
           <v-textarea v-model="book.note" :label="$t('note')" class="mb-4" />
@@ -69,9 +69,8 @@ const selectedAuthor = computed(() =>
 );
 
 const rules = {
-  title: { required: required },
-  authorId: { required: required },
-  // note optional
+  title: { required },
+  authorId: { required },
 };
 
 const v$ = useVuelidate(rules, book);
