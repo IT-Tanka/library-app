@@ -1,0 +1,46 @@
+{
+  "app_title": "Library",
+  "title":"TITLE",
+  "language": "Language",
+  "email": "Email",
+  "password": "Password",
+  "login": "Login",
+  "logout": "Logout",
+  "register": "Register",
+  "confirmPassword": "Confirm Password",
+  "name": "NAME",
+  "author": "AUTHOR",
+  "search": "Search",
+  "addAuthor": "Add Author",
+  "addBook": "Add Book",
+  "edit": "Edit",
+  "save": "Save",
+  "delete": "Delete",
+  "close": "Close",
+  "profile": "Profile",
+  "note":"note",
+  "back":"back",
+  "nav": {
+    "books": "Books",
+    "authors": "Authors",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Enter a valid email address",
+    "minLength": "Must be at least {length} characters",
+    "sameAsPassword": "Passwords must match"
+  },
+  "error": {
+    "login_failed": "Login failed. Please check your credentials.",
+    "register_failed": "Registration failed. Please try again.",
+    "save_failed": "Failed to save. Please try again.",
+    "delete_failed": "Failed to delete. Please try again.",
+    "user_already_exists": "User with this email already exists.",
+    "invalid_credentials": "Invalid email or password.",
+    "not_authenticated": "You must be logged in to view your profile.",
+    "author_not_found": "Author not found.",
+    "book_not_found": "Book not found."
+  }
+}
