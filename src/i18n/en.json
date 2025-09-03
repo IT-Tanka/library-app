@@ -23,6 +23,10 @@
   "back": "Back",
   "booksByAuthor": "Books by this author",
   "noBooks": "No books available",
+  "viewBook": "View Book",
+  "editBook": "Edit Book",
+  "viewAuthor": "View Author",
+  "editAuthor": "Edit Author",
   "nav": {
     "books": "Books",
     "authors": "Authors",
@@ -47,6 +51,7 @@
     "book_not_found": "Book not found."
   },
   "success": {
-    "saved": "Successfully saved"
+    "saved": "Successfully saved",
+    "registered": "Registration successful"
   }
 }

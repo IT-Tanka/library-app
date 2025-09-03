@@ -27,6 +27,7 @@ This is a test Vue.js application for managing a library of books and authors.
 - Detailed view with edit mode.
 - Language switching (en/uk).
 - Protected routes.
+- Fully responsive design for all screen sizes (mobile, tablet, desktop) using Vuetify's adaptive layout system.
 
 ## Notes
 - For production: `npm run build`

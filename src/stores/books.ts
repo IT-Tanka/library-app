@@ -16,12 +16,12 @@ interface BookWithAuthor extends Book {
 export const useBooksStore = defineStore('books', () => {
   const books = ref<BookWithAuthor[]>([]);
 
-  function saveToLocalStorage() {
-    localStorage.setItem('books', JSON.stringify(books.value.map(b => ({ id: b.id, title: b.title, authorId: b.authorId, note: b.note }))));
+  function saveToLocalStorage(email: string) {
+    localStorage.setItem(`books_${email}`, JSON.stringify(books.value.map(b => ({ id: b.id, title: b.title, authorId: b.authorId, note: b.note }))));
   }
 
-  async function initializeBooks() {
-    const stored = localStorage.getItem('books');
+  async function initializeBooks(email: string) {
+    const stored = localStorage.getItem(`books_${email}`);
     if (stored) {
       books.value = JSON.parse(stored);
       return;
@@ -33,21 +33,21 @@ export const useBooksStore = defineStore('books', () => {
       }
       const data = await response.json();
       books.value = (data.books || []).map((b: any) => ({ ...b, note: b.note || '' }));
-      saveToLocalStorage();
+      saveToLocalStorage(email);
     } catch (error) {
       console.error('Failed to load db.json:', error);
       books.value = [
         { id: 1, title: 'Harry Potter', authorId: 1, note: '' },
         { id: 2, title: 'Game of Thrones', authorId: 2, note: '' },
       ];
-      saveToLocalStorage();
+      saveToLocalStorage(email);
     }
   }
 
-  async function fetchBooks(): Promise<BookWithAuthor[]> {
+  async function fetchBooks(email: string): Promise<BookWithAuthor[]> {
     const authorsStore = useAuthorsStore();
     if (!authorsStore.authors.length) {
-      await authorsStore.initializeAuthors();
+      await authorsStore.initializeAuthors(email);
     }
     books.value = books.value.map((book) => ({
       ...book,
@@ -68,7 +68,7 @@ export const useBooksStore = defineStore('books', () => {
     };
   }
 
-  async function createBook(book: { title: string; authorId: number; note: string }): Promise<BookWithAuthor> {
+  async function createBook(book: { title: string; authorId: number; note: string }, email: string): Promise<BookWithAuthor> {
     const authorsStore = useAuthorsStore();
     if (!authorsStore.authors.find((a) => a.id === book.authorId)) {
       throw new Error('author_not_found');
@@ -82,11 +82,11 @@ export const useBooksStore = defineStore('books', () => {
       author: authorsStore.authors.find((a) => a.id === book.authorId),
     };
     books.value.push(newBook);
-    saveToLocalStorage();
+    saveToLocalStorage(email);
     return newBook;
   }
 
-  async function updateBook(id: number, book: { title: string; authorId: number; note: string }): Promise<BookWithAuthor> {
+  async function updateBook(id: number, book: { title: string; authorId: number; note: string }, email: string): Promise<BookWithAuthor> {
     const authorsStore = useAuthorsStore();
     if (!authorsStore.authors.find((a) => a.id === book.authorId)) {
       throw new Error('author_not_found');
@@ -102,17 +102,17 @@ export const useBooksStore = defineStore('books', () => {
       note: book.note,
       author: authorsStore.authors.find((a) => a.id === book.authorId),
     };
-    saveToLocalStorage();
+    saveToLocalStorage(email);
     return books.value[index];
   }
 
-  async function deleteBook(id: number) {
+  async function deleteBook(id: number, email: string) {
     const index = books.value.findIndex((b) => b.id === id);
     if (index === -1) {
       throw new Error('book_not_found');
     }
     books.value.splice(index, 1);
-    saveToLocalStorage();
+    saveToLocalStorage(email);
   }
 
   return { books, initializeBooks, fetchBooks, fetchBook, createBook, updateBook, deleteBook };

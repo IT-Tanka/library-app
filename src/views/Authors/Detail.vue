@@ -8,16 +8,34 @@
           <v-text-field v-model="author.name" :label="$t('name')"
             :error-messages="v$.name.$errors.map((e: ErrorObject) => String(e.$message))" class="mb-4" />
           <v-textarea v-model="author.note" :label="$t('note')" class="mb-4" />
-          <v-btn type="submit" :disabled="v$.$invalid" class="mr-2">{{ $t('save') }}</v-btn>
-          <v-btn v-if="isEditing" color="error" @click="deleteAuthor" class="mr-2">{{ $t('delete') }}</v-btn>
-          <v-btn @click="goBack">{{ $t('back') }}</v-btn>
+          <v-btn type="submit" :disabled="v$.$invalid" class="mr-2">
+            <v-icon v-if="isMobile">mdi-content-save</v-icon>
+            <span v-else>{{ $t('save') }}</span>
+          </v-btn>
+          <v-btn v-if="isEditing" color="error" @click="confirmDeleteAuthor" class="mr-2">
+            <v-icon v-if="isMobile">mdi-delete</v-icon>
+            <span v-else>{{ $t('delete') }}</span>
+          </v-btn>
+          <v-btn @click="goBack">
+            <v-icon v-if="isMobile">mdi-arrow-left</v-icon>
+            <span v-else>{{ $t('back') }}</span>
+          </v-btn>
         </v-form>
         <div v-else>
           <p class="mb-4"><strong>{{ $t('name') }}:</strong> {{ author.name }}</p>
           <p class="mb-4"><strong>{{ $t('note') }}:</strong> {{ author.note || $t('noNote') }}</p>
-          <v-btn color="primary" @click="startEditing" class="mr-2">{{ $t('edit') }}</v-btn>
-          <v-btn color="error" @click="deleteAuthor" class="mr-2">{{ $t('delete') }}</v-btn>
-          <v-btn @click="goBack">{{ $t('back') }}</v-btn>
+          <v-btn color="primary" @click="startEditing" class="mr-2">
+            <v-icon v-if="isMobile">mdi-pencil</v-icon>
+            <span v-else>{{ $t('edit') }}</span>
+          </v-btn>
+          <v-btn color="error" @click="confirmDeleteAuthor" class="mr-2">
+            <v-icon v-if="isMobile">mdi-delete</v-icon>
+            <span v-else>{{ $t('delete') }}</span>
+          </v-btn>
+          <v-btn @click="goBack">
+            <v-icon v-if="isMobile">mdi-arrow-left</v-icon>
+            <span v-else>{{ $t('back') }}</span>
+          </v-btn>
         </div>
         <v-divider class="my-4" />
         <v-card-subtitle>{{ $t('booksByAuthor') }}</v-card-subtitle>
@@ -34,6 +52,15 @@
           <v-btn color="white" @click="snackbar = false">{{ $t('close') }}</v-btn>
         </template>
       </v-snackbar>
+      <v-dialog v-model="deleteDialog" max-width="300">
+        <v-card>
+          <v-card-title>{{ $t('delete') }}?</v-card-title>
+          <v-card-actions>
+            <v-btn color="error" @click="deleteAuthor">{{ $t('delete') }}</v-btn>
+            <v-btn @click="deleteDialog = false">{{ $t('close') }}</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-card>
   </v-container>
 </template>
@@ -44,9 +71,11 @@ import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthorsStore } from '@/stores/authors';
 import { useBooksStore } from '@/stores/books';
+import { useAuthStore } from '@/stores/auth';
 import { useVuelidate } from '@vuelidate/core';
 import { required } from '@vuelidate/validators';
 import type { ErrorObject } from '@vuelidate/core';
+import { useDisplay } from 'vuetify';
 
 interface Author {
   name: string;
@@ -58,6 +87,8 @@ const route = useRoute();
 const router = useRouter();
 const authorsStore = useAuthorsStore();
 const booksStore = useBooksStore();
+const authStore = useAuthStore();
+const { smAndDown } = useDisplay();
 
 const authorId = computed(() => Number(route.params.id));
 const author = ref<Author>({ name: '', note: '' });
@@ -66,6 +97,8 @@ const isViewMode = ref(true);
 const snackbar = ref(false);
 const snackbarText = ref('');
 const snackbarColor = ref('error');
+const deleteDialog = ref(false);
+const isMobile = computed(() => smAndDown.value);
 
 const rules = {
   name: { required: required },
@@ -79,7 +112,7 @@ const authorBooks = computed(() =>
 );
 
 onMounted(async () => {
-  await booksStore.fetchBooks();
+  await booksStore.fetchBooks(authStore.user?.email || '');
   if (isEditing.value) {
     const fetchedAuthor = await authorsStore.fetchAuthor(authorId.value);
     author.value = { name: fetchedAuthor.name, note: fetchedAuthor.note };
@@ -98,18 +131,18 @@ async function saveAuthor() {
   if (v$.value.$invalid) return;
 
   try {
+    let savedAuthor;
     if (isEditing.value) {
-      await authorsStore.updateAuthor(authorId.value, author.value);
+      savedAuthor = await authorsStore.updateAuthor(authorId.value, author.value, authStore.user?.email || '');
     } else {
-      await authorsStore.createAuthor(author.value);
+      savedAuthor = await authorsStore.createAuthor(author.value, authStore.user?.email || '');
+      router.replace(`/authors/${savedAuthor.id}`);
+      isEditing.value = true;
     }
     snackbarText.value = t('success.saved');
     snackbarColor.value = 'success';
     snackbar.value = true;
     isViewMode.value = true;
-    if (!isEditing.value) {
-      router.push('/authors');
-    }
   } catch {
     snackbarText.value = t('error.save_failed');
     snackbarColor.value = 'error';
@@ -117,9 +150,14 @@ async function saveAuthor() {
   }
 }
 
+function confirmDeleteAuthor() {
+  deleteDialog.value = true;
+}
+
 async function deleteAuthor() {
+  deleteDialog.value = false;
   try {
-    await authorsStore.deleteAuthor(authorId.value);
+    await authorsStore.deleteAuthor(authorId.value, authStore.user?.email || '');
     router.push('/authors');
   } catch {
     snackbarText.value = t('error.delete_failed');

@@ -33,6 +33,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useBooksStore } from '@/stores/books';
 import { useAuthorsStore } from '@/stores/authors';
+import { useAuthStore } from '@/stores/auth';
 
 import SearchBar from '@/components/SearchBar.vue';
 import AddButton from '@/components/AddButton.vue';
@@ -40,6 +41,7 @@ import AddButton from '@/components/AddButton.vue';
 const { t } = useI18n({ useScope: 'global' });
 const booksStore = useBooksStore();
 const authorsStore = useAuthorsStore();
+const authStore = useAuthStore();
 const router = useRouter();
 
 const searchQuery = ref('');
@@ -71,9 +73,9 @@ function addBook() {
 onMounted(async () => {
   loading.value = true;
   try {
-    await authorsStore.initializeAuthors();
-    await booksStore.initializeBooks();
-    await booksStore.fetchBooks();
+    await authorsStore.initializeAuthors(authStore.user?.email || '');
+    await booksStore.initializeBooks(authStore.user?.email || '');
+    await booksStore.fetchBooks(authStore.user?.email || '');
   } catch (err: any) {
     error.value = t(`error.${err.message}`) || t('error.load_failed');
   } finally {
