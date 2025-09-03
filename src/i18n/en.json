@@ -48,7 +48,9 @@
     "invalid_credentials": "Invalid email or password.",
     "not_authenticated": "You must be logged in to view your profile.",
     "author_not_found": "Author not found.",
-    "book_not_found": "Book not found."
+    "book_not_found": "Book not found.",
+    "navigation_failed": "Failed to navigate to the home page. Please try again.",
+    "auth_init_failed": "Failed to initialize authentication state."
   },
   "success": {
     "saved": "Successfully saved",

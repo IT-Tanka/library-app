@@ -1,22 +1,18 @@
 <template>
   <v-app>
-    <!-- Navigation bar -->
     <v-app-bar app color="primary" dark>
       <v-container class="app-container d-flex align-center justify-space-between">
         <div class="d-flex align-center">
-          <!-- Menu icon only on mobile -->
           <v-app-bar-nav-icon v-if="isAuthenticated && isMobile" @click.stop="drawer = !drawer" />
           <v-toolbar-title class="app-title">
             {{ t('app_title') }}
           </v-toolbar-title>
         </div>
         <div class="d-flex align-center">
-          <!-- Logout button -->
           <v-btn v-if="isAuthenticated" text class="mr-2" @click="logout">
             <v-icon v-if="isMobile">mdi-logout</v-icon>
             <span v-else>{{ t('logout') }}</span>
           </v-btn>
-          <!-- Language switcher -->
           <div class="lang-switcher">
             <LanguageSwitcher :label="''" />
           </div>
@@ -24,11 +20,9 @@
       </v-container>
     </v-app-bar>
 
-    <!-- Main content -->
     <v-main>
       <v-container class="app-container" fluid>
         <v-row>
-          <!-- Side menu inside container on large screens -->
           <v-col v-if="isAuthenticated && !isMobile" cols="12" md="3">
             <v-card class="nav-card">
               <v-list density="comfortable">
@@ -40,12 +34,10 @@
             </v-card>
           </v-col>
 
-          <!-- Content -->
           <v-col :cols="isAuthenticated && !isMobile ? 9 : 12">
             <router-view />
           </v-col>
 
-          <!-- Temporary side menu for mobile -->
           <v-navigation-drawer v-if="isAuthenticated && isMobile" v-model="drawer" temporary width="220">
             <v-list density="comfortable">
               <v-list-item v-for="item in navItems" :key="item.path" :to="item.path" link
@@ -61,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
@@ -83,9 +75,18 @@ const navItems = computed(() => [
   { title: t('nav.profile'), path: '/profile', exact: false },
 ]);
 
+
+watch(isAuthenticated, (newValue) => {
+  if (!newValue && router.currentRoute.value.meta.requiresAuth) {
+    router.replace('/').catch((err) => {
+      console.error('Ошибка редиректа на главную:', err);
+      window.location.href = '/';
+    });
+  }
+});
+
 async function logout() {
   await authStore.logout();
-  router.push('/');
 }
 </script>
 
@@ -107,13 +108,11 @@ async function logout() {
   }
 }
 
-/* Container width limitation */
 .app-container {
   max-width: 1440px;
   margin: 0 auto;
 }
 
-/* Language switcher */
 .lang-switcher {
   width: 90px;
   display: flex;
@@ -121,14 +120,12 @@ async function logout() {
   justify-content: flex-end;
 }
 
-/* Active link highlighting */
 .active-link {
   background-color: rgba(255, 255, 255, 0.2) !important;
   color: rgb(var(--v-theme-primary)) !important;
   font-weight: bold;
 }
 
-/* Styles for navigation card on large screens */
 .nav-card {
   background: rgb(var(--v-theme-surface));
   border-radius: 8px;
