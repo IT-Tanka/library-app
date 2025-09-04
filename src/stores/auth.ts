@@ -95,11 +95,6 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null;
     localStorage.removeItem('auth');
 
-    // Clear user-specific data from localStorage
-    if (email) {
-      localStorage.removeItem(`authors_${email}`);
-      localStorage.removeItem(`books_${email}`);
-    }
 
     // Reset Pinia stores
     const booksStore = useBooksStore();
