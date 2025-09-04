@@ -99,8 +99,8 @@ export const useAuthStore = defineStore('auth', () => {
     // Reset Pinia stores
     const booksStore = useBooksStore();
     const authorsStore = useAuthorsStore();
-    booksStore.$reset();
-    authorsStore.$reset();
+    booksStore.books = [];
+    authorsStore.authors = [];
 
     // Redirect to home page (login/register)
     try {
